@@ -71,13 +71,6 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                 i.MaxWidth = 150;
                 i.Margin = new Thickness(10, 10, 10, 10);
 
-                //Set the label
-                /*
-                Label label = new Label();
-                label.Name = drive;
-                label.MaxWidth = 20;
-                label.MaxHeight = 20;
-                */
                 var button = new KinectTileButton {
                     Label = (drive).ToString(CultureInfo.CurrentCulture),
                     FontSize = 20,
@@ -98,7 +91,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
 
         public void addFiles(String path)
         {
-            foreach (String drive in system_list)
+            foreach (String drive in sm.getSubContent(path))
             {
                 Image i = new Image();
                 BitmapImage src = new BitmapImage();
@@ -202,14 +195,14 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private void KinectTileButtonClick(object sender, RoutedEventArgs e)
         {
             var button = (KinectTileButton)e.OriginalSource;
-            var selectionDisplay = new SelectionDisplay(button.Label as string);
-            this.kinectRegionGrid.Children.Add(selectionDisplay);
+            //var selectionDisplay = new SelectionDisplay(button.Label as string);
+            //this.kinectRegionGrid.Children.Add(selectionDisplay);
 
             // Clear out placeholder content
             this.wrapPanel.Children.Clear();
 
             //Add the files in the selected directory
-            
+            addFiles(button.Label.ToString());
 
             e.Handled = true;
         }
