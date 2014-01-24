@@ -195,14 +195,29 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private void KinectTileButtonClick(object sender, RoutedEventArgs e)
         {
             var button = (KinectTileButton)e.OriginalSource;
+            String path = button.Label.ToString();
             //var selectionDisplay = new SelectionDisplay(button.Label as string);
             //this.kinectRegionGrid.Children.Add(selectionDisplay);
 
-            // Clear out placeholder content
-            this.wrapPanel.Children.Clear();
+            
 
-            //Add the files in the selected directory
-            addFiles(button.Label.ToString());
+            //Check if this is a file
+            if (File.Exists(path))
+            {
+                //This is a file
+                //Don't do nothing
+            }
+            else
+            {
+                // Clear out placeholder content
+                this.wrapPanel.Children.Clear();
+
+                //This is a directory
+                //Add the files in the selected directory
+                addFiles(button.Label.ToString());
+            }
+
+            
 
             e.Handled = true;
         }
