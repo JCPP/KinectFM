@@ -4,7 +4,7 @@
         xmlns:k="http://schemas.microsoft.com/kinect/2013"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Microsoft.Samples.Kinect.ControlsBasics"
+        xmlns:local="clr-namespace:Microsoft.Samples.Kinect.ColorBasics" 
         Title="Color Basics"
         Height="768"
         Width="1024"
@@ -62,34 +62,34 @@
             
         </Viewbox>
         <!-- Kinect region -->
-        <k:KinectRegion Grid.Row="1" x:Name="kinectRegion">
-            <Grid x:Name="kinectRegionGrid" Margin="10,10,10,10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="50" />
-                </Grid.RowDefinitions>
-                <k:KinectScrollViewer Grid.Row="0" Name="scrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
-                    <WrapPanel VerticalAlignment="Center" x:Name="wrapPanel" Orientation="Vertical" k:KinectTileButton.Click="KinectTileButtonClick">
-                        <!-- items for design layout.  They will be replaced at runtime. -->
-                    </WrapPanel>
-                </k:KinectScrollViewer>
-                <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 10, 0, 10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                </Grid>
-            </Grid>
-        </k:KinectRegion>
+        <k:KinectRegion Grid.Row="1" x:Name="kinectRegion"></k:KinectRegion>
 
 
-
+        
         <!-- Status bar -->
         <StatusBar Grid.Row="3" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}">
             <StatusBarItem Padding="0 0 0 10">
                 <TextBlock Name="statusBarText" Margin="-1 0 0 0">Press 'nothing' to save a screenshot to your 'My Pictures' directory.</TextBlock>
             </StatusBarItem>
         </StatusBar>
+        <Grid x:Name="kinectRegionGrid" Margin="5,0,15,20" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <k:KinectScrollViewer Grid.Row="0" Name="scrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                <WrapPanel VerticalAlignment="Center" x:Name="wrapPanel" Orientation="Vertical" k:KinectTileButton.Click="KinectTileButtonClick">
+                    <!-- items for design layout.  They will be replaced at runtime. -->
+                    <k:KinectSensorChooserUI HorizontalAlignment="Center" VerticalAlignment="Top" Name="sensorChooserUi" />
+                </WrapPanel>
+            </k:KinectScrollViewer>
+            <Grid Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0, 10, 0, 10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

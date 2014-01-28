@@ -16,18 +16,57 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         }
 
         public List<String> getSubContent(String path){
-
-            String[] directories = Directory.GetDirectories(path);
-            String[] files = Directory.GetFiles(path);
+            String[] directories = null;
+            String[] files = null;
             List<String> content = new List<String>();
-            foreach (String directory in directories)
+            if (!path.Contains("."))
             {
-                content.Add(directory);
+                try
+                {
+
+                    directories = Directory.GetDirectories(path);
+                    files = Directory.GetFiles(path);
+
+                    foreach (String directory in directories)
+                    {
+                        string[] pathFragments = directory.Split('\\');
+                        String name = pathFragments.Last() + '\\';
+                        content.Add(name);
+                    }
+                    foreach (String file in files)
+                    {
+                        string[] pathFragments = file.Split('\\');
+                        String name = pathFragments.Last();
+                        content.Add(name);
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return content;
+                }
+                catch (System.UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    return content;
+                }
             }
-            foreach (String file in files)
+            else
             {
-                content.Add(file);
+                //content.Add("NOT FOUND");
             }
+            /*else if (File.Exists(path))
+            {
+                
+                files = Directory.GetFiles(path);
+                foreach (String file in files)
+                {
+                    string[] pathFragments = file.Split('\\');
+                    String name = pathFragments.Last();
+                    content.Add(name);
+                }
+                
+            }*/
 
             return content;
  

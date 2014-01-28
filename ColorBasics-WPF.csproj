@@ -76,6 +76,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="KinectHoverButton.cs" />
     <Compile Include="SelectionDisplay.xaml.cs">
       <DependentUpon>SelectionDisplay.xaml</DependentUpon>
     </Compile>
@@ -136,6 +137,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Hard-Drive-icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\File-icon.png" />
+    <Resource Include="Images\Folder-icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

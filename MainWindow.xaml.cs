@@ -14,6 +14,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
     using System.Windows.Media.Imaging;
     using System.Collections.Generic;
     using System.Windows.Controls;
+    using System.Windows.Data;
 
     using Microsoft.Kinect;
     using Microsoft.Kinect.Toolkit;
@@ -30,6 +31,7 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         /// Active Kinect sensor
         /// </summary>
         private KinectSensor sensor;
+        private readonly KinectSensorChooser sensorChooser;
 
         /// <summary>
         /// Bitmap that will hold color information
@@ -46,6 +48,11 @@ namespace Microsoft.Samples.Kinect.ColorBasics
          */
         private List<String> system_list = new List<String>();
         private SystemMap sm = new SystemMap();
+        private String path;
+
+        private SelectionDisplay selectionDisplay;
+        System.Windows.Threading.DispatcherTimer timer;
+
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -53,6 +60,16 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         public MainWindow()
         {
             InitializeComponent();
+            // initialize the sensor chooser and UI
+            this.sensorChooser = new KinectSensorChooser();
+            this.sensorChooser.KinectChanged += SensorChooserOnKinectChanged;
+            this.sensorChooserUi.KinectSensorChooser = this.sensorChooser;
+            this.sensorChooser.Start();
+            // Bind the sensor chooser's current sensor to the KinectRegion
+            var regionSensorBinding = new Binding("Kinect") { Source = this.sensorChooser };
+            BindingOperations.SetBinding(this.kinectRegion, KinectRegion.KinectSensorProperty, regionSensorBinding);
+
+            //Set SystemMap
             SystemMap sm = new SystemMap();
             system_list = sm.getLocals();
             foreach (String drive in system_list) {
@@ -79,57 +96,113 @@ namespace Microsoft.Samples.Kinect.ColorBasics
                     MaxWidth = i.MaxWidth
                 };
 
-
                 this.wrapPanel.Children.Add(button);
-
-                //Add the image in the Stack Panel
-                //sp.Children.Add(i);
             }
-            //String drive = system_list[0];
         }
 
+        private static void SensorChooserOnKinectChanged(object sender, KinectChangedEventArgs args)
+        {
+            if (args.OldSensor != null)
+            {
+                try
+                {
+                    args.OldSensor.DepthStream.Range = DepthRange.Default;
+                    args.OldSensor.SkeletonStream.EnableTrackingInNearRange = false;
+                    args.OldSensor.DepthStream.Disable();
+                    args.OldSensor.SkeletonStream.Disable();
+                }
+                catch (InvalidOperationException)
+                {
+                    // KinectSensor might enter an invalid state while enabling/disabling streams or stream features.
+                    // E.g.: sensor might be abruptly unplugged.
+                }
+            }
+
+            if (args.NewSensor != null)
+            {
+                try
+                {
+                    args.NewSensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
+                    args.NewSensor.SkeletonStream.Enable();
+
+                    try
+                    {
+                        args.NewSensor.DepthStream.Range = DepthRange.Near;
+                        args.NewSensor.SkeletonStream.EnableTrackingInNearRange = true;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Non Kinect for Windows devices do not support Near mode, so reset back to default mode.
+                        args.NewSensor.DepthStream.Range = DepthRange.Default;
+                        args.NewSensor.SkeletonStream.EnableTrackingInNearRange = false;
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    // KinectSensor might enter an invalid state while enabling/disabling streams or stream features.
+                    // E.g.: sensor might be abruptly unplugged.
+                }
+            }
+        }
 
         public void addFiles(String path)
         {
-            foreach (String drive in sm.getSubContent(path))
+            List<String> list = sm.getSubContent(path);
+            if (list.Count == 0)
             {
-                Image i = new Image();
-                BitmapImage src = new BitmapImage();
-
-                src.BeginInit();
-                src.UriSource = new Uri("../../Images\\Hard-Drive-icon.png", UriKind.Relative);
-                src.CacheOption = BitmapCacheOption.OnLoad;
-                src.EndInit();
-
-
-                i.Source = src;
-                i.Stretch = Stretch.Uniform;
-                i.MaxHeight = 150;
-                i.MaxWidth = 150;
-                i.Margin = new Thickness(10, 10, 10, 10);
-
-                //Set the label
-                /*
-                Label label = new Label();
-                label.Name = drive;
-                label.MaxWidth = 20;
-                label.MaxHeight = 20;
-                */
-                var button = new KinectTileButton
-                {
-                    Label = (drive).ToString(CultureInfo.CurrentCulture),
-                    FontSize = 20,
-                    Background = new ImageBrush(i.Source),
-                    MaxHeight = i.MaxHeight,
-                    MaxWidth = i.MaxWidth
-                };
-
-
-                this.wrapPanel.Children.Add(button);
-
-                //Add the image in the Stack Panel
-                //sp.Children.Add(i);
+                Console.WriteLine("Empty content");
             }
+            else
+            {
+                foreach (String drive in list)
+                {
+                    Image i = new Image();
+                    BitmapImage src = new BitmapImage();
+
+                    src.BeginInit();
+                    if (File.Exists(path+drive))
+                    {
+                        src.UriSource = new Uri("../../Images\\File-icon.png", UriKind.Relative);
+                    }
+                    else
+                    {
+                        src.UriSource = new Uri("../../Images\\Folder-icon.png", UriKind.Relative);
+                    }
+                    
+                    src.CacheOption = BitmapCacheOption.OnLoad;
+                    src.EndInit();
+
+
+                    i.Source = src;
+                    i.Stretch = Stretch.Uniform;
+                    i.MaxHeight = 150;
+                    i.MaxWidth = 150;
+                    i.Margin = new Thickness(10, 10, 10, 10);
+
+                    //Set the label
+                    /*
+                    Label label = new Label();
+                    label.Name = drive;
+                    label.MaxWidth = 20;
+                    label.MaxHeight = 20;
+                    */
+                    var button = new KinectTileButton
+                    {
+                        Label = (drive).ToString(CultureInfo.CurrentCulture),
+                        FontSize = 20,
+                        Background = new ImageBrush(i.Source),
+                        MaxHeight = i.MaxHeight,
+                        MaxWidth = i.MaxWidth
+                    };
+
+
+                    this.wrapPanel.Children.Add(button);
+
+                    //Add the image in the Stack Panel
+                    //sp.Children.Add(i);
+                }
+            }
+            
         }
 
         /// <summary>
@@ -195,26 +268,38 @@ namespace Microsoft.Samples.Kinect.ColorBasics
         private void KinectTileButtonClick(object sender, RoutedEventArgs e)
         {
             var button = (KinectTileButton)e.OriginalSource;
-            String path = button.Label.ToString();
-            //var selectionDisplay = new SelectionDisplay(button.Label as string);
-            //this.kinectRegionGrid.Children.Add(selectionDisplay);
-
-            
 
             //Check if this is a file
-            if (File.Exists(path))
+           if (File.Exists(path + button.Label.ToString()))
             {
                 //This is a file
-                //Don't do nothing
-            }
-            else
-            {
+
                 // Clear out placeholder content
                 this.wrapPanel.Children.Clear();
 
+                //var selectionDisplay = new SelectionDisplay(button.Label as string);
+                selectionDisplay = new SelectionDisplay();
+                selectionDisplay.printMessage(button.Label as string, "This is a file.");
+
+                this.kinectRegionGrid.Children.Add(selectionDisplay);
+
+               //Add the files
+                addFiles(path);
+            }
+            else
+            {
+               //Add the path with the new directory
+                path += button.Label.ToString();
+
+
+                // Clear out placeholder content
+                this.wrapPanel.Children.Clear();
+                Console.WriteLine(path);
                 //This is a directory
                 //Add the files in the selected directory
-                addFiles(button.Label.ToString());
+                if (!path.Equals("NOT FOUND"))
+
+                    addFiles(path);
             }
 
             

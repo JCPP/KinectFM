@@ -12,12 +12,18 @@
         /// Initializes a new instance of the <see cref="SelectionDisplay"/> class. 
         /// </summary>
         /// <param name="itemId">ID of the item that was selected</param>
-        public SelectionDisplay(string itemId)
+        public SelectionDisplay()
         {
             this.InitializeComponent();
 
             //this.messageTextBlock.Text = string.Format(CultureInfo.CurrentCulture, Properties.SelectedMessage, itemId);
-            this.messageTextBlock.Text = string.Format(CultureInfo.CurrentCulture, "No vabbè, è giusto!", itemId);
+            //this.messageTextBlock.Text = string.Format(CultureInfo.CurrentCulture, "Empty content", itemId);
+        }
+
+
+        public void printMessage(string itemId, string message)
+        {
+            this.messageTextBlock.Text = string.Format(CultureInfo.CurrentCulture, message, itemId);
         }
 
         /// <summary>
